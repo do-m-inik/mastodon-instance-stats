@@ -19,7 +19,10 @@ Displaying some stats of any Mastodon instance and compare them to a other Masto
 - `wget https://raw.githubusercontent.com/do-m-inik/mastodon-instance-stats/main/mastodon-instance-stats.py`
 
 ### Usage
-- `python3 mastodon-instance-stats.py <choosen instance> [<compare instance>]`
+- `python3 mastodon-instance-stats.py [-h] [--csv <CSV file name>] <instance 1> [<other instances> ...]`
+- For every given instance the script returns the stats of the given Mastodon instances
+- If two Mastodon instances are given the script compares the two given instances
+- With `--csv <file name>` the stats are saved into an CSV instead of printing them out
 
 ### Examples
 - `python3 mastodon-instance-stats.py bahn.social`
@@ -67,16 +70,34 @@ Output:
 
 <br />
 
-## Saving stats as CSV
-With the python script located in the directory saving_stats_as_csv you can also save the stats in a CSV
-
-### Downloading the python script for downloading the CSV
-- `wget https://raw.githubusercontent.com/do-m-inik/mastodon-instance-stats/main/saving_stats_as_csv/saving_mastodon_instance_stats.py`
-
-### Example
-- `python3 saving_mastodon_instance_stats.py bahn.social`
+- `python3 mastodon-instance-stats.py bahn.social chaos.social bonn.social`
 <br />
-mastodon_instance_stats.csv:
+Output:
 
-    Date and time,Instance name,Users,Toots,Connections
-    25.04.2023 18:14:32,Bahn.Social,82,25014,9383
+    =============== Mastodon instance stats ===============
+    === Bahn.Social ===
+    Users: 82
+    Toots: 25021
+    Connections: 9383
+    
+    === chaos.social ===
+    Users: 10905
+    Toots: 4093387
+    Connections: 53010
+    
+    === Bonn.social ===
+    Users: 1258
+    Toots: 172075
+    Connections: 23561
+
+<br />
+
+- `python3 mastodon-instance-stats.py --csv example.csv bahn.social chaos.social`
+<br />
+example.csv:
+
+    Date and time,Instance name,Domain,Users,Toots,Connections
+    2023-04-25Z19:39:46.507849,Bahn.Social,bahn.social,82,25021,9383
+    2023-04-25Z19:39:46.507849,chaos.social,chaos.social,10905,4093484,53010
+    
+<br />
