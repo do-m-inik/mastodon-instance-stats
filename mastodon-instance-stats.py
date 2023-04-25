@@ -37,7 +37,7 @@ def getDataOfInstance(name):
 def printStatsOfSingleInstance(title, user_count, status_count, domain_count):
     print('=== ' + title + ' ===')
     print('Users:', user_count)
-    print('Posts:', status_count)
+    print('Toots:', status_count)
     print('Connections:', domain_count)
     print('')
 
@@ -61,7 +61,7 @@ def printComparisons(type, title_choosen, title_compared, count_choosen, count_c
     print('= ' + type + ' =')
     print('Difference:', calcDifference(count_choosen, count_compared))
     print('Ratio ' + title_choosen + '/' + title_compared + ':', calcRatio(count_choosen, count_compared), '%')
-    print('How many ' + title_choosen + ' ' + type + ' per ' + title_compared + ' ' + type, 
+    print('How many ' + title_choosen + ' ' + type.lower() + ' per ' + title_compared + ' ' + type.lower() + ':', 
             calcHowManyPer(count_choosen, count_compared))
     print('')
 
@@ -97,6 +97,6 @@ printStatsOfSingleInstance(title_choosen, user_count_choosen, status_count_choos
 if(argument_count == 3):
     printStatsOfSingleInstance(title_compared, user_count_compared, status_count_compared, domain_count_compared)
     print('=== Comparisons ===')
-    printComparisons('users', title_choosen, title_compared, user_count_choosen, user_count_compared)
-    printComparisons('posts', title_choosen, title_compared, status_count_choosen, status_count_compared)
-    printComparisons('connections', title_choosen, title_compared, domain_count_choosen, domain_count_compared)
+    printComparisons('Users', title_choosen, title_compared, user_count_choosen, user_count_compared)
+    printComparisons('Toots', title_choosen, title_compared, status_count_choosen, status_count_compared)
+    printComparisons('Connections', title_choosen, title_compared, domain_count_choosen, domain_count_compared)
