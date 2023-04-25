@@ -1,7 +1,11 @@
 import argparse
-import requests
+import csv
+import datetime
 import json
+import os
 import sys
+
+import requests
 
 # Getting the URL with the name of a instance
 def getURLOfInstance(name):
@@ -55,19 +59,37 @@ def printComparisons(type, title_choosen, title_compared, count_choosen, count_c
     print('= ' + type + ' =')
     print('Difference:', calcDifference(count_choosen, count_compared))
     print('Ratio ' + title_choosen + '/' + title_compared + ':', calcRatio(count_choosen, count_compared), '%')
-    print('How many ' + title_choosen + ' ' + type.lower() + ' per ' + title_compared + ' ' + type.lower() + ':', 
+    print('How many ' + title_choosen + ' ' + type.lower() + ' per ' + title_compared + ' ' + type.lower() + ':',
             calcHowManyPer(count_choosen, count_compared))
     print('')
 
-def main():
-    parser = argparse.ArgumentParser(prog="Mastodon Instance Stats", description="Fetches instance global stats and optionally saves it")
-    parser.add_argument('instances', metavar="INSTANCE", type=str, nargs="+", help="instance(s) to show stats for")
-    args = parser.parse_args()
+def writeCSV(instances_data, filename):
+    """Creates and appends given data to CSV file"""
 
-    print('=============== Mastodon instance stats ===============')
+    if not os.path.exists(filename):
+        column_name = ["Date and time", "Instance name", "Domain", "Users", "Toots", "Connections"]
+        with open(filename, 'w', newline='', encoding='utf-8') as f:
+            writer = csv.writer(f)
+            writer.writerow(column_name)
+
+    current_time = datetime.datetime.utcnow()
+    formatted_time = current_time.isoformat("Z")
+
+    with open(filename, 'a', newline='', encoding='utf-8') as f:
+        writer = csv.writer(f)
+        for domain, data in instances_data.items():
+            data_row = [formatted_time, data['title'], domain, data['user_count'], data['status_count'], data['domain_count']] # header line
+            writer.writerow(data_row)
+
+def main():
+    parser = argparse.ArgumentParser(description="Fetches instance global stats and optionally saves it")
+    parser.add_argument('instances', metavar="INSTANCE", type=str, nargs="+", help="instance(s) to show stats for")
+    parser.add_argument('--csv', metavar="CSVFILE", type=str, help="Creates/Appends to given CSV file instead of writing to terminal")
+    args = parser.parse_args()
 
     instances_data = {}
     for instance in args.instances:
+        print('Fetching instance data for %s' % instance)
         instance_data = getDataOfInstance(instance)
         instances_data[instance] = {
             'title': instance_data['title'],
@@ -76,10 +98,17 @@ def main():
             'domain_count': instance_data['stats']['domain_count']
         }
 
+    if args.csv:
+        print('Writing CSV to %s' % args.csv)
+        writeCSV(instances_data, args.csv)
+        sys.exit(0)
+
+    # Printing the whole Mastodon instance stats
+    print('=============== Mastodon instance stats ===============')
+    for instance in args.instances:
         data = instances_data[instance]
         printStatsOfSingleInstance(data['title'], data['user_count'], data['status_count'], data['domain_count'])
 
-    # Printing the whole Mastodon instance stats
     if len(instances_data) == 2:
         data_left = instances_data[args.instances[0]]
         data_right = instances_data[args.instances[1]]

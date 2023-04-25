@@ -1,0 +1,11 @@
+# Virtual environments
+env
+venv
+
+# IDE folders
+.idea
+.vscode
+.pycharm
+
+# macOS
+.DS_Store
