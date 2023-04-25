@@ -30,6 +30,7 @@ Output:
     Connections: 9383
 
 <br />
+
 - `python3 mastodon-instance-stats.py bahn.social chaos.social`
 <br />
 Output:
