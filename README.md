@@ -16,18 +16,23 @@ Displaying some stats of any Mastodon instance and compare them to a other Masto
 - `python3 -m pip install requests`
 
 ### Usage
-- python3 mastodon-instance-stats.py <choosen instance> [<compare instance>]
+- `python3 mastodon-instance-stats.py <choosen instance> [<compare instance>]`
 
 ### Examples
-- python3 mastodon-instance-stats.py bahn.social
+- `python3 mastodon-instance-stats.py bahn.social`
+<br />
 Output:
+<br />
     =============== Mastodon instance stats ===============
     === Bahn.Social ===
     Users: 82
     Posts: 24994
     Connections: 9383
 
-- python3 mastodon-instance-stats.py bahn.social chaos.social
+- `python3 mastodon-instance-stats.py bahn.social chaos.social`
+<br />
+Output:
+<br />
     =============== Mastodon instance stats ===============
     === Bahn.Social ===
     Users: 82
