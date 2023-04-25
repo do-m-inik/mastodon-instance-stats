@@ -23,6 +23,7 @@ Displaying some stats of any Mastodon instance and compare them to a other Masto
 <br />
 Output:
 <br />
+
     =============== Mastodon instance stats ===============
     === Bahn.Social ===
     Users: 82
@@ -33,6 +34,7 @@ Output:
 <br />
 Output:
 <br />
+
     =============== Mastodon instance stats ===============
     === Bahn.Social ===
     Users: 82
