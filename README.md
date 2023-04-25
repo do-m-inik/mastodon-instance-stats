@@ -10,12 +10,12 @@ Displaying some stats of any Mastodon instance and compare them to a other Masto
 ### Installation
 ##### Debian/Ubuntu
 - `apt install python3`
-- `pip install requests`
+- `pip install  -r requirements.txt`
 - `wget https://raw.githubusercontent.com/do-m-inik/mastodon-instance-stats/main/mastodon-instance-stats.py`
 
 ##### MacOS
 - `brew install python3`
-- `python3 -m pip install requests`
+- `python3 -m pip install -r requirements.txt`
 - `wget https://raw.githubusercontent.com/do-m-inik/mastodon-instance-stats/main/mastodon-instance-stats.py`
 
 ### Usage
