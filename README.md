@@ -22,7 +22,6 @@ Displaying some stats of any Mastodon instance and compare them to a other Masto
 - `python3 mastodon-instance-stats.py bahn.social`
 <br />
 Output:
-<br />
 
     =============== Mastodon instance stats ===============
     === Bahn.Social ===
@@ -33,7 +32,6 @@ Output:
 - `python3 mastodon-instance-stats.py bahn.social chaos.social`
 <br />
 Output:
-<br />
 
     =============== Mastodon instance stats ===============
     === Bahn.Social ===
