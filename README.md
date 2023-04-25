@@ -64,3 +64,19 @@ Output:
     Difference: 43612
     Ratio Bahn.Social/chaos.social: 17.71 %
     How many Bahn.Social connections per chaos.social connections 5.65
+
+<br />
+
+## Saving stats as CSV
+With the python script located in the directory saving_stats_as_csv you can also save the stats in a CSV
+
+### Downloading the python script for downloading the CSV
+- `wget https://raw.githubusercontent.com/do-m-inik/mastodon-instance-stats/main/saving_stats_as_csv/saving_mastodon_instance_stats.py`
+
+### Example
+- `python3 saving_mastodon_instance_stats.py bahn.social`
+<br />
+mastodon_instance_stats.csv:
+
+    Date and time,Instance name,Users,Toots,Connections
+    25.04.2023 18:14:32,Bahn.Social,82,25014,9383
