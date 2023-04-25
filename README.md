@@ -53,14 +53,14 @@ Output:
     = users =
     Difference: 10821
     Ratio Bahn.Social/chaos.social: 0.75 %
-    How many Bahn.Social usersper chaos.social users 132.96
+    How many Bahn.Social users per chaos.social users 132.96
 
     = posts =
     Difference: 4065836
     Ratio Bahn.Social/chaos.social: 0.61 %
-    How many Bahn.Social posts per chaos.social posts 163.67
+    How many Bahn.Social toots per chaos.social posts 163.67
 
     = connections =
     Difference: 43612
     Ratio Bahn.Social/chaos.social: 17.71 %
-    How many Bahn.Social connectionsper chaos.social connections 5.65
+    How many Bahn.Social connections per chaos.social connections 5.65

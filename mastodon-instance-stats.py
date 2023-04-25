@@ -37,7 +37,7 @@ def getDataOfInstance(name):
 def printStatsOfSingleInstance(title, user_count, status_count, domain_count):
     print('=== ' + title + ' ===')
     print('Users:', user_count)
-    print('Posts:', status_count)
+    print('Toots:', status_count)
     print('Connections:', domain_count)
     print('')
 
@@ -61,42 +61,46 @@ def printComparisons(type, title_choosen, title_compared, count_choosen, count_c
     print('= ' + type + ' =')
     print('Difference:', calcDifference(count_choosen, count_compared))
     print('Ratio ' + title_choosen + '/' + title_compared + ':', calcRatio(count_choosen, count_compared), '%')
-    print('How many ' + title_choosen + ' ' + type + ' per ' + title_compared + ' ' + type, 
+    print('How many ' + title_choosen + ' ' + type.lower() + ' per ' + title_compared + ' ' + type.lower() + ':', 
             calcHowManyPer(count_choosen, count_compared))
     print('')
 
-# Given instance/s
-argument_count = len(sys.argv)
-if(argument_count < 2 or argument_count > 3):
-    printInvalidSyntaxError() # If too less/many arguments are given
-choosen = sys.argv[1] # The choosen instance is the 1st given instance
-if(argument_count == 3):
-    compared = sys.argv[2] # The compared instance is the 2nd given instance
+def main():
+    # Given instance/s
+    argument_count = len(sys.argv)
+    if(argument_count < 2 or argument_count > 3):
+        printInvalidSyntaxError() # If too less/many arguments are given
+    choosen = sys.argv[1] # The choosen instance is the 1st given instance
+    if(argument_count == 3):
+        compared = sys.argv[2] # The compared instance is the 2nd given instance
 
-# Data of the given instance/s
-data_choosen = getDataOfInstance(choosen)
-if(argument_count == 3):
-    data_compared = getDataOfInstance(compared)
+    # Data of the given instance/s
+    data_choosen = getDataOfInstance(choosen)
+    if(argument_count == 3):
+        data_compared = getDataOfInstance(compared)
 
-# Single data elements given by the choosen instance
-title_choosen = data_choosen['title']
-user_count_choosen = data_choosen['stats']['user_count']
-status_count_choosen = data_choosen['stats']['status_count']
-domain_count_choosen = data_choosen['stats']['domain_count']
+    # Single data elements given by the choosen instance
+    title_choosen = data_choosen['title']
+    user_count_choosen = data_choosen['stats']['user_count']
+    status_count_choosen = data_choosen['stats']['status_count']
+    domain_count_choosen = data_choosen['stats']['domain_count']
 
-# Single data elements given by the 2nd given instance
-if(argument_count == 3):
-    title_compared = data_compared['title']
-    user_count_compared = data_compared['stats']['user_count']
-    status_count_compared = data_compared['stats']['status_count']
-    domain_count_compared = data_compared['stats']['domain_count']
+    # Single data elements given by the 2nd given instance
+    if(argument_count == 3):
+        title_compared = data_compared['title']
+        user_count_compared = data_compared['stats']['user_count']
+        status_count_compared = data_compared['stats']['status_count']
+        domain_count_compared = data_compared['stats']['domain_count']
 
-# Printing the whole Mastodon instance stats
-print('=============== Mastodon instance stats ===============')
-printStatsOfSingleInstance(title_choosen, user_count_choosen, status_count_choosen, domain_count_choosen)
-if(argument_count == 3):
-    printStatsOfSingleInstance(title_compared, user_count_compared, status_count_compared, domain_count_compared)
-    print('=== Comparisons ===')
-    printComparisons('users', title_choosen, title_compared, user_count_choosen, user_count_compared)
-    printComparisons('posts', title_choosen, title_compared, status_count_choosen, status_count_compared)
-    printComparisons('connections', title_choosen, title_compared, domain_count_choosen, domain_count_compared)
+    # Printing the whole Mastodon instance stats
+    print('=============== Mastodon instance stats ===============')
+    printStatsOfSingleInstance(title_choosen, user_count_choosen, status_count_choosen, domain_count_choosen)
+    if(argument_count == 3):
+        printStatsOfSingleInstance(title_compared, user_count_compared, status_count_compared, domain_count_compared)
+        print('=== Comparisons ===')
+        printComparisons('Users', title_choosen, title_compared, user_count_choosen, user_count_compared)
+        printComparisons('Toots', title_choosen, title_compared, status_count_choosen, status_count_compared)
+        printComparisons('Connections', title_choosen, title_compared, domain_count_choosen, domain_count_compared)
+
+if __name__ == "__main__":
+    main()
