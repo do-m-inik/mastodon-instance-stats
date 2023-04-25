@@ -61,7 +61,7 @@ def printComparisons(type, title_choosen, title_compared, count_choosen, count_c
     print('= ' + type + ' =')
     print('Difference:', calcDifference(count_choosen, count_compared))
     print('Ratio ' + title_choosen + '/' + title_compared + ':', calcRatio(count_choosen, count_compared), '%')
-    print('How many ' + title_choosen + ' ' + type.lower() + ' per ' + title_compared + ' ' + type.lower() + ':', 
+    print('How many ' + title_compared + ' ' + type.lower() + ' per ' + title_choosen + ' ' + type.lower() + ':',
             calcHowManyPer(count_choosen, count_compared))
     print('')
 
