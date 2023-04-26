@@ -1,33 +1,33 @@
 # Mastodon instance stats
-Displaying some stats of any Mastodon instance and compare them to a other Mastodon instance.
+Displaying and saving some stats of any Mastodon instance and compare them to a other Mastodon instance.
 
-### Requirements
+## Requirements
 - Python3
 - Unix shell
 - Python3 repuests
 - Wget (optional)
 
-### Installation
-##### Debian/Ubuntu
+## Installation
+#### Debian/Ubuntu
 - `apt install python3`
 - `wget https://raw.githubusercontent.com/do-m-inik/mastodon-instance-stats/main/requirements.txt`
-- `pip install  -r requirements.txt`
+- `pip install -r requirements.txt`
 - `wget https://raw.githubusercontent.com/do-m-inik/mastodon-instance-stats/main/mastodon-instance-stats.py`
 
-##### MacOS
+#### MacOS
 - `brew install python3`
 - `wget https://raw.githubusercontent.com/do-m-inik/mastodon-instance-stats/main/requirements.txt`
 - `python3 -m pip install -r requirements.txt`
 - `wget https://raw.githubusercontent.com/do-m-inik/mastodon-instance-stats/main/mastodon-instance-stats.py`
 
-### Usage
+## Usage
 - `python3 mastodon-instance-stats.py [-h] [--csv <CSV file name>] <instance 1> [<other instances> ...]`
 - For every given instance the script returns the stats of the given Mastodon instances
 - If two Mastodon instances are given the script compares the two given instances
-- With `--csv <file name>` the stats are saved into an CSV instead of printing them out
+- With `--csv <file name>` the stats of the given Mastodon instances are saved into an CSV without comparision instead of printing them out
 
-### Examples
-- `python3 mastodon-instance-stats.py bahn.social`
+## Examples
+- 1 given Mastodon instance: `python3 mastodon-instance-stats.py bahn.social`
 <br />
 Output:
 
@@ -39,7 +39,7 @@ Output:
 
 <br />
 
-- `python3 mastodon-instance-stats.py bahn.social chaos.social`
+- 2 given Mastodon instances: `python3 mastodon-instance-stats.py bahn.social chaos.social`
 <br />
 Output:
 
@@ -72,7 +72,7 @@ Output:
 
 <br />
 
-- `python3 mastodon-instance-stats.py bahn.social chaos.social bonn.social`
+- 3 given Mastodon instances: `python3 mastodon-instance-stats.py bahn.social chaos.social bonn.social`
 <br />
 Output:
 
@@ -94,7 +94,7 @@ Output:
 
 <br />
 
-- `python3 mastodon-instance-stats.py --csv example.csv bahn.social chaos.social`
+- 2 given Mastodon instances saving into a CSV: `python3 mastodon-instance-stats.py --csv example.csv bahn.social chaos.social`
 <br />
 example.csv:
 
