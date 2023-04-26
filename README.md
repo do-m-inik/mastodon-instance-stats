@@ -10,16 +10,21 @@ Displaying some stats of any Mastodon instance and compare them to a other Masto
 ### Installation
 ##### Debian/Ubuntu
 - `apt install python3`
-- `pip install requests`
+- `wget https://raw.githubusercontent.com/do-m-inik/mastodon-instance-stats/main/requirements.txt`
+- `pip install  -r requirements.txt`
 - `wget https://raw.githubusercontent.com/do-m-inik/mastodon-instance-stats/main/mastodon-instance-stats.py`
 
 ##### MacOS
 - `brew install python3`
-- `python3 -m pip install requests`
+- `wget https://raw.githubusercontent.com/do-m-inik/mastodon-instance-stats/main/requirements.txt`
+- `python3 -m pip install -r requirements.txt`
 - `wget https://raw.githubusercontent.com/do-m-inik/mastodon-instance-stats/main/mastodon-instance-stats.py`
 
 ### Usage
-- `python3 mastodon-instance-stats.py <choosen instance> [<compare instance>]`
+- `python3 mastodon-instance-stats.py [-h] [--csv <CSV file name>] <instance 1> [<other instances> ...]`
+- For every given instance the script returns the stats of the given Mastodon instances
+- If two Mastodon instances are given the script compares the two given instances
+- With `--csv <file name>` the stats are saved into an CSV instead of printing them out
 
 ### Examples
 - `python3 mastodon-instance-stats.py bahn.social`
@@ -41,42 +46,60 @@ Output:
     =============== Mastodon instance stats ===============
     === Bahn.Social ===
     Users: 82
-    Posts: 24994
-    Connections: 9383
+    Posts: 25034
+    Connections: 9387
 
     === chaos.social ===
-    Users: 10903
-    Posts: 4090830
-    Connections: 52995
+    Users: 10905
+    Posts: 4095018
+    Connections: 53020
 
     === Comparisons ===
     = users =
-    Difference: 10821
+    Difference: 10823
     Ratio Bahn.Social/chaos.social: 0.75 %
-    How many Bahn.Social users per chaos.social users 132.96
+    How many chaos.social users per Bahn.Social user: 132.99
 
     = posts =
-    Difference: 4065836
+    Difference: 4069984
     Ratio Bahn.Social/chaos.social: 0.61 %
-    How many Bahn.Social toots per chaos.social posts 163.67
+    How many chaos.social toots per Bahn.Social toot: 163.58
 
     = connections =
-    Difference: 43612
-    Ratio Bahn.Social/chaos.social: 17.71 %
-    How many Bahn.Social connections per chaos.social connections 5.65
+    Difference: 43633
+    Ratio Bahn.Social/chaos.social: 17.7 %
+    How many chaos.social connections per Bahn.Social connection: 5.65
 
 <br />
 
-## Saving stats as CSV
-With the python script located in the directory saving_stats_as_csv you can also save the stats in a CSV
-
-### Downloading the python script for downloading the CSV
-- `wget https://raw.githubusercontent.com/do-m-inik/mastodon-instance-stats/main/saving_stats_as_csv/saving_mastodon_instance_stats.py`
-
-### Example
-- `python3 saving_mastodon_instance_stats.py bahn.social`
+- `python3 mastodon-instance-stats.py bahn.social chaos.social bonn.social`
 <br />
-mastodon_instance_stats.csv:
+Output:
 
-    Date and time,Instance name,Users,Toots,Connections
-    25.04.2023 18:14:32,Bahn.Social,82,25014,9383
+    =============== Mastodon instance stats ===============
+    === Bahn.Social ===
+    Users: 82
+    Toots: 25021
+    Connections: 9383
+    
+    === chaos.social ===
+    Users: 10905
+    Toots: 4093387
+    Connections: 53010
+    
+    === Bonn.social ===
+    Users: 1258
+    Toots: 172075
+    Connections: 23561
+
+<br />
+
+- `python3 mastodon-instance-stats.py --csv example.csv bahn.social chaos.social`
+<br />
+example.csv:
+
+    Date and time,Instance name,Domain,Users,Toots,Connections
+    2023-04-25Z19:39:46.507849,Bahn.Social,bahn.social,82,25021,9383
+    2023-04-25Z19:39:46.507849,chaos.social,chaos.social,10905,4093484,53010
+    
+<br />

@@ -1,13 +1,11 @@
-import requests
+import argparse
+import csv
+import datetime
 import json
+import os
 import sys
 
-# Printing the usage of the program if is was typed incorrectly
-def printInvalidSyntaxError():
-    print('Usage: python3 mastodon-instance-stats.py <choosen instance> [<compared instance>]')
-    print('Example 1: python3 mastodon-instance-stats.py bahn.social')
-    print('Example 2: python3 mastodon-instance-stats.py bahn.social chaos.social')
-    sys.exit(1)
+import requests
 
 # Getting the URL with the name of a instance
 def getURLOfInstance(name):
@@ -61,46 +59,64 @@ def printComparisons(type, title_choosen, title_compared, count_choosen, count_c
     print('= ' + type + ' =')
     print('Difference:', calcDifference(count_choosen, count_compared))
     print('Ratio ' + title_choosen + '/' + title_compared + ':', calcRatio(count_choosen, count_compared), '%')
-    print('How many ' + title_choosen + ' ' + type.lower() + ' per ' + title_compared + ' ' + type.lower() + ':', 
+    print('How many ' + title_compared + ' ' + type.lower() + ' per ' + title_choosen + ' ' + type.lower()[:-1] + ':',
             calcHowManyPer(count_choosen, count_compared))
     print('')
 
+def writeCSV(instances_data, filename):
+    """Creates and appends given data to CSV file"""
+
+    if not os.path.exists(filename):
+        column_name = ["Date and time", "Instance name", "Domain", "Users", "Toots", "Connections"]
+        with open(filename, 'w', newline='', encoding='utf-8') as f:
+            writer = csv.writer(f)
+            writer.writerow(column_name)
+
+    current_time = datetime.datetime.utcnow()
+    formatted_time = current_time.isoformat("Z")
+
+    with open(filename, 'a', newline='', encoding='utf-8') as f:
+        writer = csv.writer(f)
+        for domain, data in instances_data.items():
+            data_row = [formatted_time, data['title'], domain, data['user_count'], data['status_count'], data['domain_count']] # header line
+            writer.writerow(data_row)
+
 def main():
-    # Given instance/s
-    argument_count = len(sys.argv)
-    if(argument_count < 2 or argument_count > 3):
-        printInvalidSyntaxError() # If too less/many arguments are given
-    choosen = sys.argv[1] # The choosen instance is the 1st given instance
-    if(argument_count == 3):
-        compared = sys.argv[2] # The compared instance is the 2nd given instance
+    parser = argparse.ArgumentParser(description="Fetches instance global stats and optionally saves it")
+    parser.add_argument('instances', metavar="INSTANCE", type=str, nargs="+", help="instance(s) to show stats for")
+    parser.add_argument('--csv', metavar="CSVFILE", type=str, help="Creates/Appends to given CSV file instead of writing to terminal")
+    args = parser.parse_args()
 
-    # Data of the given instance/s
-    data_choosen = getDataOfInstance(choosen)
-    if(argument_count == 3):
-        data_compared = getDataOfInstance(compared)
+    instances_data = {}
+    for instance in args.instances:
+        print('Fetching instance data for %s' % instance)
+        instance_data = getDataOfInstance(instance)
+        instances_data[instance] = {
+            'title': instance_data['title'],
+            'user_count': instance_data['stats']['user_count'],
+            'status_count': instance_data['stats']['status_count'],
+            'domain_count': instance_data['stats']['domain_count']
+        }
 
-    # Single data elements given by the choosen instance
-    title_choosen = data_choosen['title']
-    user_count_choosen = data_choosen['stats']['user_count']
-    status_count_choosen = data_choosen['stats']['status_count']
-    domain_count_choosen = data_choosen['stats']['domain_count']
-
-    # Single data elements given by the 2nd given instance
-    if(argument_count == 3):
-        title_compared = data_compared['title']
-        user_count_compared = data_compared['stats']['user_count']
-        status_count_compared = data_compared['stats']['status_count']
-        domain_count_compared = data_compared['stats']['domain_count']
+    if args.csv:
+        print('Writing CSV to %s' % args.csv)
+        writeCSV(instances_data, args.csv)
+        sys.exit(0)
 
     # Printing the whole Mastodon instance stats
     print('=============== Mastodon instance stats ===============')
-    printStatsOfSingleInstance(title_choosen, user_count_choosen, status_count_choosen, domain_count_choosen)
-    if(argument_count == 3):
-        printStatsOfSingleInstance(title_compared, user_count_compared, status_count_compared, domain_count_compared)
+    for instance in args.instances:
+        data = instances_data[instance]
+        printStatsOfSingleInstance(data['title'], data['user_count'], data['status_count'], data['domain_count'])
+
+    if len(instances_data) == 2:
+        data_left = instances_data[args.instances[0]]
+        data_right = instances_data[args.instances[1]]
+
         print('=== Comparisons ===')
-        printComparisons('Users', title_choosen, title_compared, user_count_choosen, user_count_compared)
-        printComparisons('Toots', title_choosen, title_compared, status_count_choosen, status_count_compared)
-        printComparisons('Connections', title_choosen, title_compared, domain_count_choosen, domain_count_compared)
+        printComparisons('Users', data_left['title'], data_right['title'], data_left['user_count'], data_right['user_count'])
+        printComparisons('Toots', data_left['title'], data_right['title'], data_left['status_count'], data_right['status_count'])
+        printComparisons('Connections', data_left['title'], data_right['title'], data_left['domain_count'], data_right['domain_count'])
 
 if __name__ == "__main__":
     main()
