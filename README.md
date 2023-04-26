@@ -46,29 +46,29 @@ Output:
     =============== Mastodon instance stats ===============
     === Bahn.Social ===
     Users: 82
-    Posts: 24994
-    Connections: 9383
+    Posts: 25034
+    Connections: 9387
 
     === chaos.social ===
-    Users: 10903
-    Posts: 4090830
-    Connections: 52995
+    Users: 10905
+    Posts: 4095018
+    Connections: 53020
 
     === Comparisons ===
     = users =
-    Difference: 10821
+    Difference: 10823
     Ratio Bahn.Social/chaos.social: 0.75 %
-    How many Bahn.Social users per chaos.social users 132.96
+    How many chaos.social users per Bahn.Social user: 132.99
 
     = posts =
-    Difference: 4065836
+    Difference: 4069984
     Ratio Bahn.Social/chaos.social: 0.61 %
-    How many Bahn.Social toots per chaos.social posts 163.67
+    How many chaos.social toots per Bahn.Social toot: 163.58
 
     = connections =
-    Difference: 43612
-    Ratio Bahn.Social/chaos.social: 17.71 %
-    How many Bahn.Social connections per chaos.social connections 5.65
+    Difference: 43633
+    Ratio Bahn.Social/chaos.social: 17.7 %
+    How many chaos.social connections per Bahn.Social connection: 5.65
 
 <br />
 
