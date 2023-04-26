@@ -104,7 +104,7 @@ def main():
         sys.exit(0)
 
     # Printing the whole Mastodon instance stats
-    print('=============== Mastodon instance stats ===============')
+    print('=============== Mastodon instance stats v1.2.2 ===============')
     for instance in args.instances:
         data = instances_data[instance]
         printStatsOfSingleInstance(data['title'], data['user_count'], data['status_count'], data['domain_count'])
