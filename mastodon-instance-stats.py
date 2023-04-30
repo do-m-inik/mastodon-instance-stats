@@ -3,7 +3,9 @@ import csv
 import datetime
 import json
 import os
+import shutil
 import sys
+import tempfile
 
 import requests
 
@@ -82,6 +84,52 @@ def printComparisons(type, title_choosen, title_compared, count_choosen, count_c
             calcHowManyPer(count_choosen, count_compared))
     print('')
 
+
+def migrateCSV(filename):
+    """Reads whole csv and adds columns with calculated difference values"""
+
+    output_filehandle, output_filename = tempfile.mkstemp()
+    with os.fdopen(output_filehandle, 'w', newline='', encoding='utf-8') as outfile:
+        writer = csv.DictWriter(outfile, fieldnames=CSV_COLUMNS)
+        writer.writeheader()
+
+        with open(filename, 'r', newline='', encoding='utf-8') as infile:
+            reader = csv.DictReader(infile, CSV_COLUMNS)
+            previous_values = {
+                'Users': 0,
+                'Toots': 0,
+                'Connections': 0
+            }
+
+            # skip header line
+            next(reader)
+
+            for rowno, row in enumerate(reader):
+                for field in ['Users', 'Toots', 'Connections']:
+                    cur_value = 0
+                    try:
+                        cur_value = int(row[field])
+                    except ValueError:
+                        # Silence value error to fix empty values
+                        pass
+                    row["D" + field] = cur_value - previous_values[field]
+                    previous_values[field] = cur_value
+                writer.writerow(row)
+
+    shutil.move(output_filename, filename)
+
+
+def migrateCheckCSV(filename):
+    """Checks if the file needs to be migrated to new format"""
+
+    with open(filename, 'r', newline='', encoding='utf-8') as infile:
+        reader = csv.DictReader(infile)
+        headers = reader.fieldnames
+        if headers != CSV_COLUMNS:
+            print('*** File does not match new format, starting migration')
+            migrateCSV(filename)
+
+
 def writeCSV(instances_data, filename):
     """Creates and appends given data to CSV file"""
 
@@ -98,6 +146,7 @@ def writeCSV(instances_data, filename):
         'Connections': 0
     }
 
+    migrateCheckCSV(filename)
     with open(filename, 'r', newline='', encoding='utf-8') as infile:
         reader = csv.DictReader(infile, fieldnames=CSV_COLUMNS)
         for row in reader:
