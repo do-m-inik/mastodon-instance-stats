@@ -7,12 +7,15 @@ import sys
 
 import requests
 
-# Getting the URL with the name of a instance
 def getURLOfInstance(name):
+    """Getting the URL with the name of a instance"""
+
     return 'https://' + name + '/api/v1/instance'
 
-# If a invalid URL was given this function returns the error for it
+
 def checkIfMastodonInstanceExists(name):
+    """If a invalid URL was given this function returns the error for it"""
+
     try:
         r = requests.head(getURLOfInstance(name))
     except:
@@ -20,42 +23,56 @@ def checkIfMastodonInstanceExists(name):
         print('Not working URL: https://' + name)
         sys.exit(1)
 
-# Getting the response of a Mastodon instance
+
 def getResponseOfInstance(url):
+    """Getting the response of a Mastodon instance"""
+
     return requests.get(url)
 
-# Getting the data of the instance given by JSON located in instance_name.domain/api/v1/instance
+
 def getDataOfInstance(name):
+    """Getting the data of the instance given by JSON located in instance_name.domain/api/v1/instance"""
+
     checkIfMastodonInstanceExists(name)
     url = getURLOfInstance(name)
     response = getResponseOfInstance(url)
     return json.loads(response.text)
 
-# Printing the stats of a single Mastodon instance
+
 def printStatsOfSingleInstance(title, user_count, status_count, domain_count):
+    """Printing the stats of a single Mastodon instance"""
+
     print('=== ' + title + ' ===')
     print('Users:', user_count)
     print('Toots:', status_count)
     print('Connections:', domain_count)
     print('')
 
-# Calculating the positive difference of to given values
+
 def calcDifference(count_choosen, count_compared):
+    """Calculating the positive difference of to given values"""
+
     difference = count_compared-count_choosen
     if(difference < 0):
         difference = difference * (-1)
     return difference
 
-# Calculating the ratio of two given Mastodon instances in percent
+
 def calcRatio(count_choosen, count_compared):
+    """Calculating the ratio of two given Mastodon instances in percent"""
+
     return round(count_choosen/count_compared*100, 2)
 
-# Calculating how many people from the 1st given instance would fit in the 2nd given instance
+
 def calcHowManyPer(count_choosen, count_compared):
+    """Calculating how many people from the 1st given instance would fit in the 2nd given instance"""
+
     return round(count_compared/count_choosen, 2)
 
-# Printing every comparisation between the two instances
+
 def printComparisons(type, title_choosen, title_compared, count_choosen, count_compared):
+    """Printing every comparisation between the two instances"""
+
     print('= ' + type + ' =')
     print('Difference:', calcDifference(count_choosen, count_compared))
     print('Ratio ' + title_choosen + '/' + title_compared + ':', calcRatio(count_choosen, count_compared), '%')
