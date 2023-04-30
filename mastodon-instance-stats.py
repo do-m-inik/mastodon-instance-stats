@@ -7,6 +7,8 @@ import sys
 
 import requests
 
+CSV_COLUMNS = ["Date and time", "Instance name", "Domain", "Users", "Toots", "Connections", "DUsers", "DToots", "DConnections"]
+
 def getURLOfInstance(name):
     """Getting the URL with the name of a instance"""
 
@@ -84,19 +86,47 @@ def writeCSV(instances_data, filename):
     """Creates and appends given data to CSV file"""
 
     if not os.path.exists(filename):
-        column_name = ["Date and time", "Instance name", "Domain", "Users", "Toots", "Connections"]
         with open(filename, 'w', newline='', encoding='utf-8') as f:
-            writer = csv.writer(f)
-            writer.writerow(column_name)
+            writer = csv.DictWriter(f, fieldnames=CSV_COLUMNS)
+            writer.writeheader()
 
     current_time = datetime.datetime.utcnow()
     formatted_time = current_time.isoformat("Z")
+    previous_values = {
+        'Users': 0,
+        'Toots': 0,
+        'Connections': 0
+    }
+
+    with open(filename, 'r', newline='', encoding='utf-8') as infile:
+        reader = csv.DictReader(infile, fieldnames=CSV_COLUMNS)
+        for row in reader:
+            for field in ['Users', 'Toots', 'Connections']:
+                cur_value = 0
+                try:
+                    cur_value = int(row[field])
+                except ValueError:
+                    # Silence value error to fix empty values
+                    pass
+                previous_values[field] = cur_value
 
     with open(filename, 'a', newline='', encoding='utf-8') as f:
-        writer = csv.writer(f)
+        writer = csv.DictWriter(f, fieldnames=CSV_COLUMNS)
         for domain, data in instances_data.items():
-            data_row = [formatted_time, data['title'], domain, data['user_count'], data['status_count'], data['domain_count']] # header line
+            data_row = {
+                "Date and time": formatted_time,
+                "Instance name": data['title'],
+                "Domain": domain,
+                "Users": data['user_count'],
+                "Toots": data['status_count'],
+                "Connections": data['domain_count'],
+                "DUsers": int(data['user_count']) - previous_values['Users'],
+                "DToots": int(data['status_count']) - previous_values['Toots'],
+                "DConnections": int(data['domain_count']) - previous_values['Connections']
+
+            }
             writer.writerow(data_row)
+
 
 def main():
     parser = argparse.ArgumentParser(description="Fetches instance global stats and optionally saves it")
