@@ -6,6 +6,7 @@ import os
 import shutil
 import sys
 import tempfile
+from numpy import genfromtxt
 from sqlalchemy import create_engine, Column, Integer, String, DateTime
 from sqlalchemy.orm import DeclarativeBase, sessionmaker, Session
 import requests
@@ -103,6 +104,14 @@ def print_comparisons(instance_type, title_chosen, title_compared, count_chosen,
     print('How many ' + title_compared + ' ' + instance_type.lower() + ' per ' + title_chosen + ' ' +
           instance_type.lower()[:-1] + ':', calc_how_many_per(count_chosen, count_compared))
     print('')
+
+
+def load_csv(file_name):
+    with open(file_name, 'r') as file:
+        num_columns = len(file.readline().split(','))
+    data = genfromtxt(file_name, delimiter=',', skip_header=1, dtype=str, encoding=None, autostrip=True,
+                         usecols=range(num_columns))
+    return data.tolist()
 
 
 def migrate_csv(filename):
@@ -210,9 +219,10 @@ def insert_data_into_database(instances_data, filename):
                 users=data['user_count'],
                 toots=data['status_count'],
                 connections=data['domain_count'],
-                #d_users=int(data['user_count']) - previous_values['Users'],
-                #d_toots=int(data['status_count']) - previous_values['Toots'],
-                #d_connections=int(data['domain_count']) - previous_values['Connections'],
+                # TODO: Make delta data work
+                # d_users=int(data['user_count']) - previous_values['Users'],
+                # d_toots=int(data['status_count']) - previous_values['Toots'],
+                # d_connections=int(data['domain_count']) - previous_values['Connections'],
                 d_users=data['user_count'],
                 d_toots=data['status_count'],
                 d_connections=data['domain_count'],
@@ -223,6 +233,32 @@ def insert_data_into_database(instances_data, filename):
     session.close()
 
 
+def convert_csv_to_db(csv_name, db_name):
+    engine = create_engine('sqlite:///' + db_name)
+    Base.metadata.create_all(engine)
+    session = sessionmaker()
+    session.configure(bind=engine)
+    s = session()
+    data = load_csv(csv_name)
+    for i in data:
+        current_date_iso = i[0]
+        current_date_iso_string = current_date_iso.strip("b''")
+        current_datetime = datetime.datetime.strptime(current_date_iso_string, '%Y-%m-%dZ%H:%M:%S.%f')
+        data_row = TableRow(
+            date_and_time=current_datetime,
+            instance_name=i[1],
+            domain=i[2],
+            users=i[3],
+            toots=i[4],
+            connections=i[5],
+            d_users=i[6],
+            d_toots=i[7],
+            d_connections=i[8],
+        )
+        s.add(data_row)
+    s.commit()
+
+
 def main():
     parser = argparse.ArgumentParser(description="Fetches instance global stats and optionally saves it")
     parser.add_argument('instances', metavar="INSTANCE", type=str, nargs="+", help="instance(s) to show stats for")
@@ -230,6 +266,8 @@ def main():
                         help="Creates/Appends to given CSV file instead of writing to terminal")
     parser.add_argument('--db', metavar="DBFILE", type=str,
                         help="Creates/Appends to given DB file instead of writing to terminal")
+    parser.add_argument('--convert_csv_to_db', action='append', nargs=2, metavar=("CSVFILE", "DBFILE"), type=str,
+                        help="Converts a CSV to a DB")
     args = parser.parse_args()
 
     instances_data = {}
@@ -251,6 +289,13 @@ def main():
         print('Writing DB to %s' % args.db)
         insert_data_into_database(instances_data, args.db)
         sys.exit(0)
+    if args.convert_csv_to_db:
+        source_csv = args.convert_csv_to_db[0][0]
+        target_db = args.convert_csv_to_db[0][1]
+        print('Converting the CSV file: %s' % source_csv)
+        print('to the SQLite database:  %s' % target_db)
+        convert_csv_to_db(source_csv, target_db)
+        sys.exit(0)
 
     # Printing the whole Mastodon instance stats
     print('=============== Mastodon instance stats v1.2.2 ===============')
@@ -269,8 +314,6 @@ def main():
                           data_right['status_count'])
         print_comparisons('Connections', data_left['title'], data_right['title'], data_left['domain_count'],
                           data_right['domain_count'])
-
-    insert_data_into_database("test.db", "bahn.social")
 
 
 if __name__ == "__main__":
