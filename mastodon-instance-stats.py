@@ -6,11 +6,29 @@ import os
 import shutil
 import sys
 import tempfile
-
+from sqlalchemy import create_engine, Column, Integer, String, DateTime
+from sqlalchemy.orm import DeclarativeBase, sessionmaker, Session
 import requests
 
 CSV_COLUMNS = ["Date and time", "Instance name", "Domain", "Users", "Toots", "Connections", "DUsers", "DToots",
                "DConnections"]
+
+
+class Base(DeclarativeBase):
+    pass
+
+
+class TableRow(Base):
+    __tablename__ = 'data'
+    date_and_time = Column(DateTime, primary_key=True)
+    instance_name = Column(String)
+    domain = Column(String)
+    users = Column(Integer)
+    toots = Column(Integer)
+    connections = Column(Integer)
+    d_users = Column(Integer)
+    d_toots = Column(Integer)
+    d_connections = Column(Integer)
 
 
 def get_url_of_instance(name):
@@ -179,11 +197,39 @@ def write_csv(instances_data, filename):
             writer.writerow(data_row)
 
 
+def insert_data_into_database(instances_data, filename):
+    engine = create_engine("sqlite:///" + filename, echo=True)
+    Base.metadata.create_all(engine)
+    current_time = datetime.datetime.utcnow()
+    for domain, data in instances_data.items():
+        with Session(engine) as session:
+            data_row = TableRow(
+                date_and_time=current_time,
+                instance_name=data['title'],
+                domain=domain,
+                users=data['user_count'],
+                toots=data['status_count'],
+                connections=data['domain_count'],
+                #d_users=int(data['user_count']) - previous_values['Users'],
+                #d_toots=int(data['status_count']) - previous_values['Toots'],
+                #d_connections=int(data['domain_count']) - previous_values['Connections'],
+                d_users=data['user_count'],
+                d_toots=data['status_count'],
+                d_connections=data['domain_count'],
+            )
+        session.add(data_row)
+
+    session.commit()
+    session.close()
+
+
 def main():
     parser = argparse.ArgumentParser(description="Fetches instance global stats and optionally saves it")
     parser.add_argument('instances', metavar="INSTANCE", type=str, nargs="+", help="instance(s) to show stats for")
     parser.add_argument('--csv', metavar="CSVFILE", type=str,
                         help="Creates/Appends to given CSV file instead of writing to terminal")
+    parser.add_argument('--db', metavar="DBFILE", type=str,
+                        help="Creates/Appends to given DB file instead of writing to terminal")
     args = parser.parse_args()
 
     instances_data = {}
@@ -200,6 +246,10 @@ def main():
     if args.csv:
         print('Writing CSV to %s' % args.csv)
         write_csv(instances_data, args.csv)
+        sys.exit(0)
+    if args.db:
+        print('Writing DB to %s' % args.db)
+        insert_data_into_database(instances_data, args.db)
         sys.exit(0)
 
     # Printing the whole Mastodon instance stats
@@ -219,6 +269,8 @@ def main():
                           data_right['status_count'])
         print_comparisons('Connections', data_left['title'], data_right['title'], data_left['domain_count'],
                           data_right['domain_count'])
+
+    insert_data_into_database("test.db", "bahn.social")
 
 
 if __name__ == "__main__":
