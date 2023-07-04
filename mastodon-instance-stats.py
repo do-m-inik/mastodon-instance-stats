@@ -247,7 +247,7 @@ def insert_data_into_database(instances_data, filename):
             )
             session.add(data_row)
 
-            # Aktuelle Werte als vorherige Werte aktualisieren
+            # Actual data now gets to the previous values
             previous_values['Users'] = data['user_count']
             previous_values['Toots'] = data['status_count']
             previous_values['Connections'] = data['domain_count']
