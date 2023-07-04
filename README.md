@@ -4,7 +4,7 @@ Displaying and saving some stats of any Mastodon instance and compare them to a 
 ## Requirements
 - Python3
 - Unix shell
-- Python3 repuests
+- requirements.txt
 - Wget (optional)
 
 ## Installation
@@ -21,17 +21,19 @@ Displaying and saving some stats of any Mastodon instance and compare them to a 
 - `wget https://raw.githubusercontent.com/do-m-inik/mastodon-instance-stats/main/mastodon-instance-stats.py`
 
 ## Usage
-- `python3 mastodon-instance-stats.py [-h] [--csv <CSV file name>] <instance 1> [<other instances> ...]`
+- `python3 mastodon-instance-stats.py [-h] [--csv CSVFILE] [--db DBFILE] [--convert_csv_to_db CSVFILE DBFILE] [INSTANCE ...]`
 - For every given instance the script returns the stats of the given Mastodon instances
 - If two Mastodon instances are given the script compares the two given instances
-- With `--csv <file name>` the stats of the given Mastodon instances are saved into an CSV without comparision instead of printing them out
+- With `--csv <file name>` the stats of the given Mastodon instances are saved into an CSV without comparison instead of printing them out
+- With `--db <file name>` the stats of the given Mastodon instances are saved into an SQLite DB without comparison instead of printing them out
+- With `--convert_csv_to_db <csv file name> <db file name>` a CSV gets converted into a SQLite DB
 
 ## Examples
 - 1 given Mastodon instance: `python3 mastodon-instance-stats.py bahn.social`
 <br />
 Output:
 
-    =============== Mastodon instance stats v1.2.2 ===============
+    =============== Mastodon instance stats v1.3.0 ===============
     === Bahn.Social ===
     Users: 82
     Posts: 24994
@@ -43,7 +45,7 @@ Output:
 <br />
 Output:
 
-    =============== Mastodon instance stats v1.2.2 ===============
+    =============== Mastodon instance stats v1.3.0 ===============
     === Bahn.Social ===
     Users: 82
     Posts: 25034
@@ -76,7 +78,7 @@ Output:
 <br />
 Output:
 
-    =============== Mastodon instance stats v1.2.2 ===============
+    =============== Mastodon instance stats v1.3.0 ===============
     === Bahn.Social ===
     Users: 82
     Toots: 25021
@@ -94,7 +96,7 @@ Output:
 
 <br />
 
-- 2 given Mastodon instances saving into a CSV: `python3 mastodon-instance-stats.py --csv example.csv bahn.social chaos.social`
+- 2 given Mastodon instances gets saved into a CSV: `python3 mastodon-instance-stats.py --csv example.csv bahn.social chaos.social`
 <br />
 example.csv:
 
@@ -103,3 +105,9 @@ example.csv:
     2023-04-25Z19:39:46.507849,chaos.social,chaos.social,10905,4093484,53010
     
 <br />
+
+- A given Mastodon instance gets saved into a DB: `python3 mastodon-instance-stats.py --db example.db bahn.social`
+<br />
+<br />
+
+- A given CSV gets converted into a DB: `python3 mastodon-instance-stats.py --convert_csv_to_db example.csv example.db`
