@@ -7,7 +7,7 @@ import shutil
 import sys
 import tempfile
 from numpy import genfromtxt
-from sqlalchemy import create_engine, Column, Integer, String, DateTime
+from sqlalchemy import create_engine, Column, Integer, String, DateTime, func
 from sqlalchemy.orm import DeclarativeBase, sessionmaker, Session
 import requests
 
@@ -207,11 +207,33 @@ def write_csv(instances_data, filename):
 
 
 def insert_data_into_database(instances_data, filename):
+    """Creates and appends given data to DB file"""
+
     engine = create_engine("sqlite:///" + filename, echo=True)
     Base.metadata.create_all(engine)
     current_time = datetime.datetime.utcnow()
-    for domain, data in instances_data.items():
-        with Session(engine) as session:
+
+    with Session(engine) as session:
+        # Checking if the given DB file is empty
+        row_count = session.query(func.count(TableRow.date_and_time)).scalar()
+        if row_count > 0:
+            # Getting the data from the last row
+            last_row = session.query(TableRow).order_by(TableRow.date_and_time.desc()).first()
+            previous_values = {
+                'Users': last_row.users,
+                'Toots': last_row.toots,
+                'Connections': last_row.connections
+            }
+        else:
+            # If no row exists in the DB the delta values are getting to 0
+            previous_values = {
+                'Users': 0,
+                'Toots': 0,
+                'Connections': 0
+            }
+
+        # Adding for every given instance name the values as a row
+        for domain, data in instances_data.items():
             data_row = TableRow(
                 date_and_time=current_time,
                 instance_name=data['title'],
@@ -219,41 +241,45 @@ def insert_data_into_database(instances_data, filename):
                 users=data['user_count'],
                 toots=data['status_count'],
                 connections=data['domain_count'],
-                # TODO: Make delta data work
-                # d_users=int(data['user_count']) - previous_values['Users'],
-                # d_toots=int(data['status_count']) - previous_values['Toots'],
-                # d_connections=int(data['domain_count']) - previous_values['Connections'],
-                d_users=data['user_count'],
-                d_toots=data['status_count'],
-                d_connections=data['domain_count'],
+                d_users=int(data['user_count']) - previous_values['Users'],
+                d_toots=int(data['status_count']) - previous_values['Toots'],
+                d_connections=int(data['domain_count']) - previous_values['Connections'],
             )
-        session.add(data_row)
+            session.add(data_row)
 
-    session.commit()
-    session.close()
+            # Aktuelle Werte als vorherige Werte aktualisieren
+            previous_values['Users'] = data['user_count']
+            previous_values['Toots'] = data['status_count']
+            previous_values['Connections'] = data['domain_count']
+
+        session.commit()
 
 
 def convert_csv_to_db(csv_name, db_name):
+    """Converts a given CSV file to a DB file"""
+
     engine = create_engine('sqlite:///' + db_name)
     Base.metadata.create_all(engine)
     session = sessionmaker()
     session.configure(bind=engine)
     s = session()
     data = load_csv(csv_name)
-    for i in data:
-        current_date_iso = i[0]
+
+    # Commit every row of the CSV into the DB
+    for row in data:
+        current_date_iso = row[0]
         current_date_iso_string = current_date_iso.strip("b''")
         current_datetime = datetime.datetime.strptime(current_date_iso_string, '%Y-%m-%dZ%H:%M:%S.%f')
         data_row = TableRow(
             date_and_time=current_datetime,
-            instance_name=i[1],
-            domain=i[2],
-            users=i[3],
-            toots=i[4],
-            connections=i[5],
-            d_users=i[6],
-            d_toots=i[7],
-            d_connections=i[8],
+            instance_name=row[1],
+            domain=row[2],
+            users=row[3],
+            toots=row[4],
+            connections=row[5],
+            d_users=row[6],
+            d_toots=row[7],
+            d_connections=row[8],
         )
         s.add(data_row)
     s.commit()
