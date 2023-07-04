@@ -295,6 +295,9 @@ def main():
     parser.add_argument('--convert_csv_to_db', action='append', nargs=2, metavar=("CSVFILE", "DBFILE"), type=str,
                         help="Converts a CSV to a DB")
     args = parser.parse_args()
+    if len(sys.argv) == 1:
+        parser.print_help(sys.stderr)
+        sys.exit(1)
 
     instances_data = {}
 
