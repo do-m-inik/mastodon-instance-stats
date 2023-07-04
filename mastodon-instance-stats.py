@@ -287,7 +287,7 @@ def convert_csv_to_db(csv_name, db_name):
 
 def main():
     parser = argparse.ArgumentParser(description="Fetches instance global stats and optionally saves it")
-    parser.add_argument('instances', metavar="INSTANCE", type=str, nargs="+", help="instance(s) to show stats for")
+    parser.add_argument('instances', metavar="INSTANCE", type=str, nargs="*", help="instance(s) to show stats for")
     parser.add_argument('--csv', metavar="CSVFILE", type=str,
                         help="Creates/Appends to given CSV file instead of writing to terminal")
     parser.add_argument('--db', metavar="DBFILE", type=str,
@@ -297,15 +297,17 @@ def main():
     args = parser.parse_args()
 
     instances_data = {}
-    for instance in args.instances:
-        print('Fetching instance data for %s' % instance)
-        instance_data = get_data_of_instance(instance)
-        instances_data[instance] = {
-            'title': instance_data['title'],
-            'user_count': instance_data['stats']['user_count'],
-            'status_count': instance_data['stats']['status_count'],
-            'domain_count': instance_data['stats']['domain_count']
-        }
+
+    if not args.convert_csv_to_db:
+        for instance in args.instances:
+            print('Fetching instance data for %s' % instance)
+            instance_data = get_data_of_instance(instance)
+            instances_data[instance] = {
+                'title': instance_data['title'],
+                'user_count': instance_data['stats']['user_count'],
+                'status_count': instance_data['stats']['status_count'],
+                'domain_count': instance_data['stats']['domain_count']
+            }
 
     if args.csv:
         print('Writing CSV to %s' % args.csv)
@@ -324,22 +326,24 @@ def main():
         sys.exit(0)
 
     # Printing the whole Mastodon instance stats
-    print('=============== Mastodon instance stats v1.2.2 ===============')
-    for instance in args.instances:
-        data = instances_data[instance]
-        print_stats_of_single_instance(data['title'], data['user_count'], data['status_count'], data['domain_count'])
+    if not args.convert_csv_to_db:
+        print('=============== Mastodon instance stats v1.2.2 ===============')
+        for instance in args.instances:
+            data = instances_data[instance]
+            print_stats_of_single_instance(data['title'], data['user_count'], data['status_count'],
+                                           data['domain_count'])
 
-    if len(instances_data) == 2:
-        data_left = instances_data[args.instances[0]]
-        data_right = instances_data[args.instances[1]]
+        if len(instances_data) == 2:
+            data_left = instances_data[args.instances[0]]
+            data_right = instances_data[args.instances[1]]
 
-        print('=== Comparisons ===')
-        print_comparisons('Users', data_left['title'], data_right['title'], data_left['user_count'],
-                          data_right['user_count'])
-        print_comparisons('Toots', data_left['title'], data_right['title'], data_left['status_count'],
-                          data_right['status_count'])
-        print_comparisons('Connections', data_left['title'], data_right['title'], data_left['domain_count'],
-                          data_right['domain_count'])
+            print('=== Comparisons ===')
+            print_comparisons('Users', data_left['title'], data_right['title'], data_left['user_count'],
+                              data_right['user_count'])
+            print_comparisons('Toots', data_left['title'], data_right['title'], data_left['status_count'],
+                              data_right['status_count'])
+            print_comparisons('Connections', data_left['title'], data_right['title'], data_left['domain_count'],
+                              data_right['domain_count'])
 
 
 if __name__ == "__main__":
