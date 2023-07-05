@@ -33,7 +33,7 @@ Displaying and saving some stats of any Mastodon instance and compare them to a 
 <br />
 Output:
 
-    =============== Mastodon instance stats v1.3.0 ===============
+    =============== Mastodon instance stats v1.4.0 ===============
     === Bahn.Social ===
     Users: 82
     Posts: 24994
@@ -45,7 +45,7 @@ Output:
 <br />
 Output:
 
-    =============== Mastodon instance stats v1.3.0 ===============
+    =============== Mastodon instance stats v1.4.0 ===============
     === Bahn.Social ===
     Users: 82
     Posts: 25034
@@ -78,7 +78,7 @@ Output:
 <br />
 Output:
 
-    =============== Mastodon instance stats v1.3.0 ===============
+    =============== Mastodon instance stats v1.4.0 ===============
     === Bahn.Social ===
     Users: 82
     Toots: 25021

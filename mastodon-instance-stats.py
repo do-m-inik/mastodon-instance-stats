@@ -364,7 +364,7 @@ def main():
 
     # Printing the whole Mastodon instance stats
     if not (args.convert_csv_to_db or args.convert_db_to_csv):
-        print('=============== Mastodon instance stats v1.3.0 ===============')
+        print('=============== Mastodon instance stats v1.4.0 ===============')
         for instance in args.instances:
             data = instances_data[instance]
             print_stats_of_single_instance(data['title'], data['user_count'], data['status_count'],
