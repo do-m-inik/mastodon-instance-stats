@@ -26,6 +26,7 @@ Displaying and saving some stats of any Mastodon instance and compare them to a 
 - With `--csv <file name>` the stats of the given Mastodon instances are saved into an CSV without comparison instead of printing them out
 - With `--db <file name>` the stats of the given Mastodon instances are saved into an SQLite DB without comparison instead of printing them out
 - With `--convert_csv_to_db <csv file name> <db file name>` a CSV gets converted into a SQLite DB
+- With `--convert_db_to_csv <db file name> <csv file name>` a DB gets converted into a SQLite CSV
 
 ## Examples
 - 1 given Mastodon instance: `python3 mastodon-instance-stats.py bahn.social`
