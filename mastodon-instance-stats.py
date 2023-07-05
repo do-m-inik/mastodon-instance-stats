@@ -7,7 +7,7 @@ import shutil
 import sys
 import tempfile
 from numpy import genfromtxt
-from sqlalchemy import create_engine, Column, Integer, String, DateTime, func
+from sqlalchemy import create_engine, Column, Integer, String, DateTime, func, MetaData
 from sqlalchemy.orm import DeclarativeBase, sessionmaker, Session
 import requests
 
@@ -285,6 +285,31 @@ def convert_csv_to_db(csv_name, db_name):
     s.commit()
 
 
+def convert_db_to_csv(db_name, csv_name):
+    """Converts a given DB file to a CSV file"""
+
+    engine = create_engine('sqlite:///' + db_name)
+    connection = engine.connect()
+    metadata = MetaData()
+    metadata.reflect(bind=engine)
+
+    # Getting the data of the only table in the DB
+    table = metadata.tables['data']
+    query = table.select()
+    result = connection.execute(query)
+    rows = result.fetchall()
+    column_names = table.columns.keys()
+
+    # Open the CSV and writing into it
+    with open(csv_name, 'w', newline='') as csvfile:
+        writer = csv.writer(csvfile)
+        writer.writerow(column_names)
+        for row in rows:
+            writer.writerow(row)
+
+    connection.close()
+
+
 def main():
     parser = argparse.ArgumentParser(description="Fetches instance global stats and optionally saves it")
     parser.add_argument('instances', metavar="INSTANCE", type=str, nargs="*", help="instance(s) to show stats for")
@@ -294,6 +319,8 @@ def main():
                         help="Creates/Appends to given DB file instead of writing to terminal")
     parser.add_argument('--convert_csv_to_db', action='append', nargs=2, metavar=("CSVFILE", "DBFILE"), type=str,
                         help="Converts a CSV to a DB")
+    parser.add_argument('--convert_db_to_csv', action='append', nargs=2, metavar=("DBFILE", "CSVFILE"), type=str,
+                        help="Converts a DB to a CSV")
     args = parser.parse_args()
     if len(sys.argv) == 1:
         parser.print_help(sys.stderr)
@@ -301,7 +328,7 @@ def main():
 
     instances_data = {}
 
-    if not args.convert_csv_to_db:
+    if not (args.convert_csv_to_db or args.convert_db_to_csv):
         for instance in args.instances:
             print('Fetching instance data for %s' % instance)
             instance_data = get_data_of_instance(instance)
@@ -327,10 +354,17 @@ def main():
         print('to the SQLite database:  %s' % target_db)
         convert_csv_to_db(source_csv, target_db)
         sys.exit(0)
+    if args.convert_db_to_csv:
+        source_db = args.convert_db_to_csv[0][0]
+        target_csv = args.convert_db_to_csv[0][1]
+        print('Converting the DB file: %s' % source_db)
+        print('to the CSV file:        %s' % target_csv)
+        convert_db_to_csv(source_db, target_csv)
+        sys.exit(0)
 
     # Printing the whole Mastodon instance stats
-    if not args.convert_csv_to_db:
-        print('=============== Mastodon instance stats v1.3.0 ===============')
+    if not (args.convert_csv_to_db or args.convert_db_to_csv):
+        print('=============== Mastodon instance stats v1.4.0 ===============')
         for instance in args.instances:
             data = instances_data[instance]
             print_stats_of_single_instance(data['title'], data['user_count'], data['status_count'],

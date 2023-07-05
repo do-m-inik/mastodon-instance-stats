@@ -4,7 +4,6 @@ Displaying and saving some stats of any Mastodon instance and compare them to a 
 ## Requirements
 - Python3
 - Unix shell
-- requirements.txt
 - Wget (optional)
 
 ## Installation
@@ -27,13 +26,14 @@ Displaying and saving some stats of any Mastodon instance and compare them to a 
 - With `--csv <file name>` the stats of the given Mastodon instances are saved into an CSV without comparison instead of printing them out
 - With `--db <file name>` the stats of the given Mastodon instances are saved into an SQLite DB without comparison instead of printing them out
 - With `--convert_csv_to_db <csv file name> <db file name>` a CSV gets converted into a SQLite DB
+- With `--convert_db_to_csv <db file name> <csv file name>` a DB gets converted into a SQLite CSV
 
 ## Examples
 - 1 given Mastodon instance: `python3 mastodon-instance-stats.py bahn.social`
 <br />
 Output:
 
-    =============== Mastodon instance stats v1.3.0 ===============
+    =============== Mastodon instance stats v1.4.0 ===============
     === Bahn.Social ===
     Users: 82
     Posts: 24994
@@ -45,7 +45,7 @@ Output:
 <br />
 Output:
 
-    =============== Mastodon instance stats v1.3.0 ===============
+    =============== Mastodon instance stats v1.4.0 ===============
     === Bahn.Social ===
     Users: 82
     Posts: 25034
@@ -78,7 +78,7 @@ Output:
 <br />
 Output:
 
-    =============== Mastodon instance stats v1.3.0 ===============
+    =============== Mastodon instance stats v1.4.0 ===============
     === Bahn.Social ===
     Users: 82
     Toots: 25021
@@ -111,3 +111,7 @@ example.csv:
 <br />
 
 - A given CSV gets converted into a DB: `python3 mastodon-instance-stats.py --convert_csv_to_db example.csv example.db`
+<br />
+<br />
+
+- A given DB gets converted into a CSV: `python3 mastodon-instance-stats.py --convert_db_to_csv example.db example.csv`
