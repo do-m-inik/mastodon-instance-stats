@@ -4,7 +4,6 @@ Displaying and saving some stats of any Mastodon instance and compare them to a 
 ## Requirements
 - Python3
 - Unix shell
-- requirements.txt
 - Wget (optional)
 
 ## Installation
@@ -111,3 +110,7 @@ example.csv:
 <br />
 
 - A given CSV gets converted into a DB: `python3 mastodon-instance-stats.py --convert_csv_to_db example.csv example.db`
+<br />
+<br />
+
+- A given DB gets converted into a CSV: `python3 mastodon-instance-stats.py --convert_db_to_csv example.db example.csv`
