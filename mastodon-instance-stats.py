@@ -32,17 +32,23 @@ class TableRow(Base):
     d_connections = Column(Integer)
 
 
-def get_url_of_instance(name):
-    """Getting the URL with the name of an instance"""
+def get_api_v1_of_instance(name):
+    """Getting the API v1 URL with the name of an instance"""
 
     return 'https://' + name + '/api/v1/instance'
+
+
+def get_api_v2_of_instance(name):
+    """Getting the API v2 URL with the name of an instance"""
+
+    return 'https://' + name + '/api/v2/instance'
 
 
 def check_if_mastodon_instance_exists(name):
     """If an invalid URL was given this function returns the error for it"""
 
     try:
-        r = requests.head(get_url_of_instance(name))
+        r = requests.head(get_api_v1_of_instance(name))
     except:
         print('Your given URL is not a Mastodon instance!')
         print('Not working URL: https://' + name)
@@ -55,23 +61,22 @@ def get_response_of_instance(url):
     return requests.get(url)
 
 
-def get_data_of_instance(name):
+def get_api_v1_data_of_instance(name):
     """Getting the data of the instance given by JSON located in instance_name.domain/api/v1/instance"""
 
     check_if_mastodon_instance_exists(name)
-    url = get_url_of_instance(name)
-    response = get_response_of_instance(url)
+    api_v1_url = get_api_v1_of_instance(name)
+    response = get_response_of_instance(api_v1_url)
     return json.loads(response.text)
 
 
-def print_stats_of_single_instance(title, user_count, status_count, domain_count):
-    """Printing the stats of a single Mastodon instance"""
+def get_api_v2_data_of_instance(name):
+    """Getting the data of the instance given by JSON located in instance_name.domain/api/v2/instance"""
 
-    print('=== ' + title + ' ===')
-    print('Users:', user_count)
-    print('Toots:', status_count)
-    print('Connections:', domain_count)
-    print('')
+    check_if_mastodon_instance_exists(name)
+    api_v2_url = get_api_v2_of_instance(name)
+    response = get_response_of_instance(api_v2_url)
+    return json.loads(response.text)
 
 
 def calc_difference(count_chosen, count_compared):
@@ -93,6 +98,18 @@ def calc_how_many_per(count_chosen, count_compared):
     """Calculating how many people from the 1st given instance would fit in the 2nd given instance"""
 
     return round(count_compared / count_chosen, 2)
+
+
+def print_stats_of_single_instance(title, user_count, status_count, domain_count, active_users):
+    """Printing the stats of a single Mastodon instance"""
+
+    print('=== ' + title + ' ===')
+    print('Total Users:', user_count)
+    print('Active Users:', active_users)
+    print('> Ratio:', calc_ratio(active_users, user_count), '%')
+    print('Toots:', status_count)
+    print('Connections:', domain_count)
+    print('')
 
 
 def print_comparisons(instance_type, title_chosen, title_compared, count_chosen, count_compared):
@@ -331,12 +348,14 @@ def main():
     if not (args.convert_csv_to_db or args.convert_db_to_csv):
         for instance in args.instances:
             print('Fetching instance data for %s' % instance)
-            instance_data = get_data_of_instance(instance)
+            instance_api_v1_data = get_api_v1_data_of_instance(instance)
+            instance_api_v2_data = get_api_v2_data_of_instance(instance)
             instances_data[instance] = {
-                'title': instance_data['title'],
-                'user_count': instance_data['stats']['user_count'],
-                'status_count': instance_data['stats']['status_count'],
-                'domain_count': instance_data['stats']['domain_count']
+                'title': instance_api_v1_data['title'],
+                'user_count': instance_api_v1_data['stats']['user_count'],
+                'status_count': instance_api_v1_data['stats']['status_count'],
+                'domain_count': instance_api_v1_data['stats']['domain_count'],
+                'active_users': instance_api_v2_data['usage']['users']['active_month']
             }
 
     if args.csv:
@@ -368,7 +387,7 @@ def main():
         for instance in args.instances:
             data = instances_data[instance]
             print_stats_of_single_instance(data['title'], data['user_count'], data['status_count'],
-                                           data['domain_count'])
+                                           data['domain_count'], data['active_users'])
 
         if len(instances_data) == 2:
             data_left = instances_data[args.instances[0]]
