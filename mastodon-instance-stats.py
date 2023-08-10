@@ -104,11 +104,11 @@ def print_stats_of_single_instance(title, user_count, status_count, domain_count
     """Printing the stats of a single Mastodon instance"""
 
     print('=== ' + title + ' ===')
-    print('Total Users:', user_count)
+    print('Total Users: ', user_count)
     print('Active Users:', active_users)
-    print('> Ratio:', calc_ratio(active_users, user_count), '%')
-    print('Toots:', status_count)
-    print('Connections:', domain_count)
+    print('> Ratio:     ', calc_ratio(active_users, user_count), '%')
+    print('Toots:       ', status_count)
+    print('Connections: ', domain_count)
     print('')
 
 
