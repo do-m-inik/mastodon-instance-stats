@@ -394,8 +394,10 @@ def main():
             data_right = instances_data[args.instances[1]]
 
             print('=== Comparisons ===')
-            print_comparisons('Users', data_left['title'], data_right['title'], data_left['user_count'],
-                              data_right['user_count'])
+            print_comparisons('Total Users', data_left['title'], data_right['title'], data_left['user_count'],
+                              data_right['user_count']),
+            print_comparisons('Active Users', data_left['title'], data_right['title'], data_left['active_users'],
+                              data_right['active_users'])
             print_comparisons('Toots', data_left['title'], data_right['title'], data_left['status_count'],
                               data_right['status_count'])
             print_comparisons('Connections', data_left['title'], data_right['title'], data_left['domain_count'],
