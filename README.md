@@ -33,11 +33,14 @@ Displaying and saving some stats of any Mastodon instance and compare them to a 
 <br />
 Output:
 
-    =============== Mastodon instance stats v1.4.0 ===============
+    Fetching instance data for bahn.social
+    =============== Mastodon instance stats v2.0.0 ===============
     === Bahn.Social ===
-    Users: 82
-    Posts: 24994
-    Connections: 9383
+    Total Users:  214
+    Active Users: 122
+    > Ratio:      57.01 %
+    Toots:        41242
+    Connections:  12888
 
 <br />
 
@@ -45,32 +48,43 @@ Output:
 <br />
 Output:
 
-    =============== Mastodon instance stats v1.4.0 ===============
+    Fetching instance data for bahn.social
+    Fetching instance data for chaos.social
+    ============== Mastodon instance stats v2.0.0 ===============
     === Bahn.Social ===
-    Users: 82
-    Posts: 25034
-    Connections: 9387
+    Total Users:  214
+    Active Users: 122
+    > Ratio:      57.01 %
+    Toots:        41242
+    Connections:  12888
 
     === chaos.social ===
-    Users: 10905
-    Posts: 4095018
-    Connections: 53020
+    Total Users:  11175
+    Active Users: 5988
+    > Ratio:      53.58 %
+    Toots:        4736675
+    Connections:  58043
 
     === Comparisons ===
-    = users =
-    Difference: 10823
-    Ratio Bahn.Social/chaos.social: 0.75 %
-    How many chaos.social users per Bahn.Social user: 132.99
+    = Total Users =
+    Difference: 10961
+    Ratio Bahn.Social/chaos.social: 1.91 %
+    How many chaos.social total users per Bahn.Social total user: 52.22
 
-    = posts =
-    Difference: 4069984
-    Ratio Bahn.Social/chaos.social: 0.61 %
-    How many chaos.social toots per Bahn.Social toot: 163.58
+    = Active Users =
+    Difference: 5866
+    Ratio Bahn.Social/chaos.social: 2.04 %
+    How many chaos.social active users per Bahn.Social active user: 49.08
 
-    = connections =
-    Difference: 43633
-    Ratio Bahn.Social/chaos.social: 17.7 %
-    How many chaos.social connections per Bahn.Social connection: 5.65
+    = Toots =
+    Difference: 4695433
+    Ratio Bahn.Social/chaos.social: 0.87 %
+    How many chaos.social toots per Bahn.Social toot: 114.85
+
+    = Connections =
+    Difference: 45155
+    Ratio Bahn.Social/chaos.social: 22.2 %
+    How many chaos.social connections per Bahn.Social connection: 4.5
 
 <br />
 
@@ -78,21 +92,30 @@ Output:
 <br />
 Output:
 
-    =============== Mastodon instance stats v1.4.0 ===============
+    Fetching instance data for bahn.social
+    Fetching instance data for chaos.social
+    Fetching instance data for bonn.social
+    =============== Mastodon instance stats v2.0.0 ===============
     === Bahn.Social ===
-    Users: 82
-    Toots: 25021
-    Connections: 9383
-    
+    Total Users:  214
+    Active Users: 122
+    > Ratio:      57.01 %
+    Toots:        41242
+    Connections:  12888
+
     === chaos.social ===
-    Users: 10905
-    Toots: 4093387
-    Connections: 53010
-    
+    Total Users:  11175
+    Active Users: 5988
+    > Ratio:      53.58 %
+    Toots:        4736675
+    Connections:  58043
+
     === Bonn.social ===
-    Users: 1258
-    Toots: 172075
-    Connections: 23561
+    Total Users:  1300
+    Active Users: 484
+    > Ratio:      37.23 %
+    Toots:        194003
+    Connections:  26643
 
 <br />
 
@@ -100,9 +123,9 @@ Output:
 <br />
 example.csv:
 
-    Date and time,Instance name,Domain,Users,Toots,Connections
-    2023-04-25Z19:39:46.507849,Bahn.Social,bahn.social,82,25021,9383
-    2023-04-25Z19:39:46.507849,chaos.social,chaos.social,10905,4093484,53010
+    Date and time,Instance name,Domain,Users,Active users,Toots,Connections,DUsers,DActive users,DToots,DConnections
+    2023-08-15 11:57:39.575236,Bahn.Social,bahn.social,214,122,41242,12888,214,122,41242,12888
+    2023-08-15 11:57:39.575236,chaos.social,chaos.social,11175,5988,4736675,58043,11175,5988,4736675,58043
     
 <br />
 

@@ -3,16 +3,14 @@ import csv
 import datetime
 import json
 import os
-import shutil
 import sys
-import tempfile
 from numpy import genfromtxt
 from sqlalchemy import create_engine, Column, Integer, String, DateTime, func, MetaData
 from sqlalchemy.orm import DeclarativeBase, sessionmaker, Session
 import requests
 
-CSV_COLUMNS = ["Date and time", "Instance name", "Domain", "Users", "Toots", "Connections", "DUsers", "DToots",
-               "DConnections"]
+CSV_COLUMNS = ["Date and time", "Instance name", "Domain", "Users", "Active users", "Toots", "Connections", "DUsers",
+               "DActive users", "DToots", "DConnections"]
 
 
 class Base(DeclarativeBase):
@@ -25,24 +23,32 @@ class TableRow(Base):
     instance_name = Column(String)
     domain = Column(String)
     users = Column(Integer)
+    active_users = Column(Integer)
     toots = Column(Integer)
     connections = Column(Integer)
     d_users = Column(Integer)
+    d_active_users = Column(Integer)
     d_toots = Column(Integer)
     d_connections = Column(Integer)
 
 
-def get_url_of_instance(name):
-    """Getting the URL with the name of an instance"""
+def get_api_v1_of_instance(name):
+    """Getting the API v1 URL with the name of an instance"""
 
     return 'https://' + name + '/api/v1/instance'
+
+
+def get_api_v2_of_instance(name):
+    """Getting the API v2 URL with the name of an instance"""
+
+    return 'https://' + name + '/api/v2/instance'
 
 
 def check_if_mastodon_instance_exists(name):
     """If an invalid URL was given this function returns the error for it"""
 
     try:
-        r = requests.head(get_url_of_instance(name))
+        r = requests.head(get_api_v1_of_instance(name))
     except:
         print('Your given URL is not a Mastodon instance!')
         print('Not working URL: https://' + name)
@@ -55,23 +61,22 @@ def get_response_of_instance(url):
     return requests.get(url)
 
 
-def get_data_of_instance(name):
+def get_api_v1_data_of_instance(name):
     """Getting the data of the instance given by JSON located in instance_name.domain/api/v1/instance"""
 
     check_if_mastodon_instance_exists(name)
-    url = get_url_of_instance(name)
-    response = get_response_of_instance(url)
+    api_v1_url = get_api_v1_of_instance(name)
+    response = get_response_of_instance(api_v1_url)
     return json.loads(response.text)
 
 
-def print_stats_of_single_instance(title, user_count, status_count, domain_count):
-    """Printing the stats of a single Mastodon instance"""
+def get_api_v2_data_of_instance(name):
+    """Getting the data of the instance given by JSON located in instance_name.domain/api/v2/instance"""
 
-    print('=== ' + title + ' ===')
-    print('Users:', user_count)
-    print('Toots:', status_count)
-    print('Connections:', domain_count)
-    print('')
+    check_if_mastodon_instance_exists(name)
+    api_v2_url = get_api_v2_of_instance(name)
+    response = get_response_of_instance(api_v2_url)
+    return json.loads(response.text)
 
 
 def calc_difference(count_chosen, count_compared):
@@ -95,6 +100,18 @@ def calc_how_many_per(count_chosen, count_compared):
     return round(count_compared / count_chosen, 2)
 
 
+def print_stats_of_single_instance(title, user_count, status_count, domain_count, active_users):
+    """Printing the stats of a single Mastodon instance"""
+
+    print('=== ' + title + ' ===')
+    print('Total Users: ', user_count)
+    print('Active Users:', active_users)
+    print('> Ratio:     ', calc_ratio(active_users, user_count), '%')
+    print('Toots:       ', status_count)
+    print('Connections: ', domain_count)
+    print('')
+
+
 def print_comparisons(instance_type, title_chosen, title_compared, count_chosen, count_compared):
     """Printing every comparison between the two instances"""
 
@@ -114,51 +131,6 @@ def load_csv(file_name):
     return data.tolist()
 
 
-def migrate_csv(filename):
-    """Reads whole csv and adds columns with calculated difference values"""
-
-    output_filehandle, output_filename = tempfile.mkstemp()
-    with os.fdopen(output_filehandle, 'w', newline='', encoding='utf-8') as outfile:
-        writer = csv.DictWriter(outfile, fieldnames=CSV_COLUMNS)
-        writer.writeheader()
-
-        with open(filename, 'r', newline='', encoding='utf-8') as infile:
-            reader = csv.DictReader(infile, CSV_COLUMNS)
-            previous_values = {
-                'Users': 0,
-                'Toots': 0,
-                'Connections': 0
-            }
-
-            # skip header line
-            next(reader)
-
-            for rowno, row in enumerate(reader):
-                for field in ['Users', 'Toots', 'Connections']:
-                    cur_value = 0
-                    try:
-                        cur_value = int(row[field])
-                    except ValueError:
-                        # Silence value error to fix empty values
-                        pass
-                    row["D" + field] = cur_value - previous_values[field]
-                    previous_values[field] = cur_value
-                writer.writerow(row)
-
-    shutil.move(output_filename, filename)
-
-
-def migrate_check_csv(filename):
-    """Checks if the file needs to be migrated to new format"""
-
-    with open(filename, 'r', newline='', encoding='utf-8') as infile:
-        reader = csv.DictReader(infile)
-        headers = reader.fieldnames
-        if headers != CSV_COLUMNS:
-            print('*** File does not match new format, starting migration')
-            migrate_csv(filename)
-
-
 def write_csv(instances_data, filename):
     """Creates and appends given data to CSV file"""
 
@@ -168,18 +140,18 @@ def write_csv(instances_data, filename):
             writer.writeheader()
 
     current_time = datetime.datetime.utcnow()
-    formatted_time = current_time.isoformat("Z")
+    formatted_time = current_time.isoformat(" ")
     previous_values = {
         'Users': 0,
+        'Active users': 0,
         'Toots': 0,
         'Connections': 0
     }
 
-    migrate_check_csv(filename)
     with open(filename, 'r', newline='', encoding='utf-8') as infile:
         reader = csv.DictReader(infile, fieldnames=CSV_COLUMNS)
         for row in reader:
-            for field in ['Users', 'Toots', 'Connections']:
+            for field in ['Users', 'Active users', 'Toots', 'Connections']:
                 cur_value = 0
                 try:
                     cur_value = int(row[field])
@@ -196,9 +168,11 @@ def write_csv(instances_data, filename):
                 "Instance name": data['title'],
                 "Domain": domain,
                 "Users": data['user_count'],
+                "Active users": data['active_users'],
                 "Toots": data['status_count'],
                 "Connections": data['domain_count'],
                 "DUsers": int(data['user_count']) - previous_values['Users'],
+                "DActive users": int(data['active_users']) - previous_values['Active users'],
                 "DToots": int(data['status_count']) - previous_values['Toots'],
                 "DConnections": int(data['domain_count']) - previous_values['Connections']
 
@@ -221,6 +195,7 @@ def insert_data_into_database(instances_data, filename):
             last_row = session.query(TableRow).order_by(TableRow.date_and_time.desc()).first()
             previous_values = {
                 'Users': last_row.users,
+                'Active_users': last_row.active_users,
                 'Toots': last_row.toots,
                 'Connections': last_row.connections
             }
@@ -228,6 +203,7 @@ def insert_data_into_database(instances_data, filename):
             # If no row exists in the DB the delta values are getting to 0
             previous_values = {
                 'Users': 0,
+                'Active_users': 0,
                 'Toots': 0,
                 'Connections': 0
             }
@@ -239,9 +215,11 @@ def insert_data_into_database(instances_data, filename):
                 instance_name=data['title'],
                 domain=domain,
                 users=data['user_count'],
+                active_users=data['active_users'],
                 toots=data['status_count'],
                 connections=data['domain_count'],
                 d_users=int(data['user_count']) - previous_values['Users'],
+                d_active_users=int(data['active_users']) - previous_values['Active_users'],
                 d_toots=int(data['status_count']) - previous_values['Toots'],
                 d_connections=int(data['domain_count']) - previous_values['Connections'],
             )
@@ -249,6 +227,7 @@ def insert_data_into_database(instances_data, filename):
 
             # Actual data now gets to the previous values
             previous_values['Users'] = data['user_count']
+            previous_values['Active_users'] = data['active_users']
             previous_values['Toots'] = data['status_count']
             previous_values['Connections'] = data['domain_count']
 
@@ -269,17 +248,19 @@ def convert_csv_to_db(csv_name, db_name):
     for row in data:
         current_date_iso = row[0]
         current_date_iso_string = current_date_iso.strip("b''")
-        current_datetime = datetime.datetime.strptime(current_date_iso_string, '%Y-%m-%dZ%H:%M:%S.%f')
+        current_datetime = datetime.datetime.strptime(current_date_iso_string, '%Y-%m-%d %H:%M:%S.%f')
         data_row = TableRow(
             date_and_time=current_datetime,
             instance_name=row[1],
             domain=row[2],
             users=row[3],
-            toots=row[4],
-            connections=row[5],
-            d_users=row[6],
-            d_toots=row[7],
-            d_connections=row[8],
+            active_users=row[4],
+            toots=row[5],
+            connections=row[6],
+            d_users=row[7],
+            d_active_users=row[8],
+            d_toots=row[9],
+            d_connections=row[10],
         )
         s.add(data_row)
     s.commit()
@@ -331,12 +312,14 @@ def main():
     if not (args.convert_csv_to_db or args.convert_db_to_csv):
         for instance in args.instances:
             print('Fetching instance data for %s' % instance)
-            instance_data = get_data_of_instance(instance)
+            instance_api_v1_data = get_api_v1_data_of_instance(instance)
+            instance_api_v2_data = get_api_v2_data_of_instance(instance)
             instances_data[instance] = {
-                'title': instance_data['title'],
-                'user_count': instance_data['stats']['user_count'],
-                'status_count': instance_data['stats']['status_count'],
-                'domain_count': instance_data['stats']['domain_count']
+                'title': instance_api_v1_data['title'],
+                'user_count': instance_api_v1_data['stats']['user_count'],
+                'active_users': instance_api_v2_data['usage']['users']['active_month'],
+                'status_count': instance_api_v1_data['stats']['status_count'],
+                'domain_count': instance_api_v1_data['stats']['domain_count']
             }
 
     if args.csv:
@@ -364,19 +347,21 @@ def main():
 
     # Printing the whole Mastodon instance stats
     if not (args.convert_csv_to_db or args.convert_db_to_csv):
-        print('=============== Mastodon instance stats v1.4.0 ===============')
+        print('=============== Mastodon instance stats v2.0.0 ===============')
         for instance in args.instances:
             data = instances_data[instance]
             print_stats_of_single_instance(data['title'], data['user_count'], data['status_count'],
-                                           data['domain_count'])
+                                           data['domain_count'], data['active_users'])
 
         if len(instances_data) == 2:
             data_left = instances_data[args.instances[0]]
             data_right = instances_data[args.instances[1]]
 
             print('=== Comparisons ===')
-            print_comparisons('Users', data_left['title'], data_right['title'], data_left['user_count'],
-                              data_right['user_count'])
+            print_comparisons('Total Users', data_left['title'], data_right['title'], data_left['user_count'],
+                              data_right['user_count']),
+            print_comparisons('Active Users', data_left['title'], data_right['title'], data_left['active_users'],
+                              data_right['active_users'])
             print_comparisons('Toots', data_left['title'], data_right['title'], data_left['status_count'],
                               data_right['status_count'])
             print_comparisons('Connections', data_left['title'], data_right['title'], data_left['domain_count'],
